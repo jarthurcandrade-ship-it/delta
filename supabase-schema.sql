@@ -1,5 +1,5 @@
 -- ====================================
--- Trading Journal — Supabase Schema
+-- Delta — Supabase Schema
 -- Execute este SQL no Supabase SQL Editor
 -- Dashboard → SQL Editor → New Query
 -- ====================================

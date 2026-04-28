@@ -74,14 +74,14 @@ export default function Sidebar({
     <aside className="hidden md:flex w-[220px] shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
       <div className="flex items-center gap-3 border-b border-zinc-200 px-5 py-5 dark:border-zinc-800">
         <span className="flex h-8 w-8 items-center justify-center border border-black text-[11px] font-bold tracking-widest text-black dark:border-white dark:text-white">
-          AT
+          DE
         </span>
         <div className="leading-tight">
           <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
             Personal
           </p>
           <p className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            ATLAS
+            DELTA
           </p>
         </div>
       </div>
@@ -240,7 +240,7 @@ export default function Sidebar({
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 bg-emerald-500" />
             <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-emerald-600 dark:text-emerald-400">
-              ATLAS Online
+              DELTA Online
             </p>
           </div>
           <p className="mt-1.5 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">

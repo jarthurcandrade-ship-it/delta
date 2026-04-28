@@ -40,7 +40,7 @@ export default function Topbar({
       <div className="flex items-center justify-between gap-4 px-6 py-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-            <span>ATLAS</span>
+            <span>DELTA</span>
             <span>/</span>
             <span className="text-zinc-900 dark:text-zinc-100">{activeAccount}</span>
           </div>

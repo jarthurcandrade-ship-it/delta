@@ -107,7 +107,7 @@ function dayOfWeek() {
   return new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 }
 
-const DAILY_KEY = "atlas-daily-hub";
+const DAILY_KEY = "delta-daily-hub";
 
 function loadToday() {
   try {
