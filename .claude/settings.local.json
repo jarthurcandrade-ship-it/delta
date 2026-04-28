@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/src/App.jsx)",
+      "Bash(curl -s http://localhost:5173/src/components/Dashboard.jsx)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(curl -s -o /dev/null -w \"root: HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/src/App.jsx -o /dev/null -w \"App: HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5173/src/components/Dashboard.jsx -o /dev/null -w \"Dashboard: HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5173/src/components/TradeTable.jsx -o /dev/null -w \"TradeTable: HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:5173/src/components/NewTradeForm.jsx -o /dev/null -w \"NewTradeForm: HTTP %{http_code}\\\\n\")",
+      "Bash(npx eslint *)",
+      "Bash(npx vite *)",
+      "Bash(npx --no-install eslint src/components/PreTradeChecklist.jsx src/components/PapersJournal.jsx src/components/Dashboard.jsx src/components/Sidebar.jsx src/App.jsx)",
+      "Bash(npx --no-install vite build)",
+      "Bash(npx --no-install eslint src/components/PapersJournal.jsx src/App.jsx src/lib/supabase.js)"
+    ]
+  }
+}
