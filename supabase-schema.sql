@@ -154,6 +154,8 @@ CREATE TABLE IF NOT EXISTS daily_metrics (
   fasting_hours INTEGER DEFAULT 0,
   diet_quality INTEGER DEFAULT 0, -- 1-10
   meditation_minutes INTEGER DEFAULT 0,
+  hydration_cups INTEGER DEFAULT 0, -- copos de água
+  sleep_hours NUMERIC(3,1) DEFAULT 0, -- horas reais dormidas
   habits_json JSONB DEFAULT '{}', -- Sincroniza os hábitos do Daily Hub
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),

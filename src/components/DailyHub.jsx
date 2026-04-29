@@ -3,7 +3,8 @@ import {
   Moon, HeartPulse, Brain, Crosshair, Activity, Sparkles, Compass,
   ShieldCheck, ShieldAlert, ShieldX, Award, Check,
   BookOpen, Dumbbell, Coffee, Flame, Target, TrendingUp,
-  ChevronRight, Sun, Zap, Plus, Minus, Beaker, Timer
+  ChevronRight, Sun, Zap, Plus, Minus, Beaker, Timer,
+  Droplets, BedDouble, ListChecks,
 } from "lucide-react";
 import { Card, SectionHeader, signedUsd, pnlClass, Button } from "./ui";
 import {
@@ -168,7 +169,11 @@ export default function DailyHub({ trades = [], onNavigate }) {
   const [scores, setScores] = useState(ASSESSMENTS.reduce((acc, a) => ({ ...acc, [a.id]: 0 }), {}));
   const [habits, setHabits] = useState(HABITS.reduce((acc, h) => ({ ...acc, [h.id]: false }), {}));
   
-  // Biohacking state
+  // Pré-mercado essentials (primary)
+  const [hydration, setHydration] = useState(0);
+  const [sleepHours, setSleepHours] = useState(0);
+
+  // Biohacking state (secondary)
   const [caffeine, setCaffeine] = useState(0);
   const [nootropics, setNootropics] = useState(false);
   const [fasting, setFasting] = useState(0);
@@ -194,6 +199,8 @@ export default function DailyHub({ trades = [], onNavigate }) {
           impact: data.impact_score,
         });
         setHabits(data.habits_json || {});
+        setHydration(data.hydration_cups || 0);
+        setSleepHours(Number(data.sleep_hours) || 0);
         setCaffeine(data.caffeine_mg);
         setNootropics(data.nootropics);
         setFasting(data.fasting_hours);
@@ -223,6 +230,8 @@ export default function DailyHub({ trades = [], onNavigate }) {
         confidence_score: scores.confidence,
         impact_score: scores.impact,
         habits_json: habits,
+        hydration_cups: hydration,
+        sleep_hours: sleepHours,
         caffeine_mg: caffeine,
         nootropics: nootropics,
         fasting_hours: fasting,
@@ -231,7 +240,7 @@ export default function DailyHub({ trades = [], onNavigate }) {
     }, 1000);
 
     return () => clearTimeout(saveTimeout.current);
-  }, [scores, habits, caffeine, nootropics, fasting, diet, loading]);
+  }, [scores, habits, hydration, sleepHours, caffeine, nootropics, fasting, diet, loading]);
 
   const assessmentScore = Object.values(scores).reduce((s, v) => s + v, 0); // 0-70
   const habitScore = Object.values(habits).filter(Boolean).length * 7.5; // 0-30
@@ -354,98 +363,118 @@ export default function DailyHub({ trades = [], onNavigate }) {
             </div>
           </Card>
 
-          {/* ───── Biohacking Section (New) ───── */}
+          {/* ───── Pré-Mercado: essenciais para um bom dia ───── */}
           <Card padding="p-5">
             <SectionHeader
-              icon={<Beaker className="h-4 w-4" />}
-              title="Biohacking & Suplementação"
-              subtitle="Otimização química para o terminal"
+              icon={<ListChecks className="h-4 w-4" />}
+              title="Pré-Mercado"
+              subtitle="Prontidão para a sessão"
+              right={
+                <span className={cx("font-mono text-sm font-bold tabular-nums", TEXT_BODY)}>
+                  {habitsDone}<span className={TEXT_MUTED}>/{HABITS.length}</span>
+                </span>
+              }
             />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Caffeine Counter */}
-              <div className="border border-zinc-200 p-4 dark:border-zinc-800">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Coffee className="h-4 w-4 text-amber-600" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Cafeína</span>
-                  </div>
-                  <span className="font-mono text-sm font-bold text-amber-600">{caffeine}mg</span>
-                </div>
-                <div className="flex gap-2">
-                  {[50, 100, 200].map(mg => (
-                    <button
-                      key={mg}
-                      onClick={() => setCaffeine(c => c + mg)}
-                      className="flex-1 border border-zinc-200 py-1.5 text-[10px] font-bold transition hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100"
-                    >
-                      +{mg}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setCaffeine(0)}
-                    className="px-2 border border-zinc-200 text-zinc-400 hover:text-rose-500 dark:border-zinc-800"
-                  >
-                    <Minus className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Fasting / Timer */}
-              <div className="border border-zinc-200 p-4 dark:border-zinc-800">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Timer className="h-4 w-4 text-sky-600" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Jejum</span>
-                  </div>
-                  <span className="font-mono text-sm font-bold text-sky-600">{fasting}h</span>
-                </div>
-                <div className="flex gap-2">
-                  {[1, 4, 8].map(h => (
-                    <button
-                      key={h}
-                      onClick={() => setFasting(f => f + h)}
-                      className="flex-1 border border-zinc-200 py-1.5 text-[10px] font-bold transition hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100"
-                    >
-                      +{h}h
-                    </button>
-                  ))}
+            {/* Hábitos toggles */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {HABITS.map((h) => {
+                const Icon = h.icon;
+                const active = !!habits[h.id];
+                return (
                   <button
-                    onClick={() => setFasting(0)}
-                    className="px-2 border border-zinc-200 text-zinc-400 hover:text-rose-500 dark:border-zinc-800"
+                    key={h.id}
+                    type="button"
+                    onClick={() => setHabits((prev) => ({ ...prev, [h.id]: !prev[h.id] }))}
+                    className={cx(
+                      "flex items-center justify-between border px-3 py-2.5 text-left transition",
+                      active
+                        ? "border-emerald-500 bg-emerald-500/5"
+                        : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600",
+                    )}
                   >
-                    <Minus className="h-3 w-3" />
+                    <div className="flex items-center gap-2.5">
+                      <Icon
+                        className={cx("h-4 w-4", active ? "text-emerald-500" : "text-zinc-400")}
+                        strokeWidth={1.5}
+                      />
+                      <span className={cx(
+                        "text-[12px] font-medium",
+                        active ? "text-emerald-600 dark:text-emerald-400" : TEXT_BODY,
+                      )}>
+                        {h.label}
+                      </span>
+                    </div>
+                    <span className={cx(
+                      "flex h-4 w-4 items-center justify-center border",
+                      active ? "border-emerald-500 bg-emerald-500" : "border-zinc-300 dark:border-zinc-700",
+                    )}>
+                      {active && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+                    </span>
                   </button>
-                </div>
-              </div>
+                );
+              })}
+            </div>
 
-              {/* Nootropics Toggle */}
-              <button
-                onClick={() => setNootropics(!nootropics)}
-                className={cx(
-                  "flex items-center justify-between border p-4 transition",
-                  nootropics ? "border-emerald-500 bg-emerald-500/5" : "border-zinc-200 dark:border-zinc-800"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Zap className={cx("h-4 w-4", nootropics ? "text-emerald-500" : "text-zinc-400")} />
-                  <span className={cx("text-xs font-bold uppercase tracking-wider", nootropics ? "text-emerald-600" : "text-zinc-500")}>
-                    Nootrópicos
+            {/* Hidratação + Sono real */}
+            <div className="mt-4 space-y-3">
+              {/* Hidratação */}
+              <div className={cx("flex items-center justify-between border px-3 py-2.5", BORDER)}>
+                <div className="flex items-center gap-2.5">
+                  <Droplets className="h-4 w-4 text-sky-500" strokeWidth={1.5} />
+                  <span className={cx("text-[12px] font-medium", TEXT_BODY)}>Hidratação</span>
+                  <span className="font-mono text-[11px] font-semibold tabular-nums text-sky-600 dark:text-sky-400">
+                    {hydration}<span className={cx("ml-0.5 text-[10px]", TEXT_MUTED)}>copos</span>
                   </span>
                 </div>
-                {nootropics && <Check className="h-4 w-4 text-emerald-500" />}
-              </button>
-
-              {/* Diet Quality */}
-              <div className="border border-zinc-200 p-4 dark:border-zinc-800">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Qualidade Dieta</span>
-                  <span className="font-mono text-sm font-bold text-zinc-500">{diet}/10</span>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setHydration((c) => c + n)}
+                      className="border border-zinc-200 px-2 py-1 text-[10px] font-bold transition hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100"
+                    >
+                      +{n}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setHydration(0)}
+                    className="border border-zinc-200 px-2 py-1 text-zinc-400 transition hover:text-rose-500 dark:border-zinc-800"
+                    aria-label="Zerar hidratação"
+                  >
+                    <Minus className="h-3 w-3" />
+                  </button>
                 </div>
-                <input
-                  type="range" min="0" max="10" value={diet}
-                  onChange={(e) => setDiet(parseInt(e.target.value))}
-                  className="w-full accent-zinc-900 dark:accent-zinc-100"
-                />
+              </div>
+
+              {/* Sono real */}
+              <div className={cx("flex items-center justify-between border px-3 py-2.5", BORDER)}>
+                <div className="flex items-center gap-2.5">
+                  <BedDouble className="h-4 w-4 text-violet-500" strokeWidth={1.5} />
+                  <span className={cx("text-[12px] font-medium", TEXT_BODY)}>Sono real</span>
+                  <span className="font-mono text-[11px] font-semibold tabular-nums text-violet-600 dark:text-violet-400">
+                    {sleepHours || "–"}<span className={cx("ml-0.5 text-[10px]", TEXT_MUTED)}>h</span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  {[6, 7, 8, 9].map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      onClick={() => setSleepHours((cur) => (cur === h ? 0 : h))}
+                      className={cx(
+                        "border px-2 py-1 text-[10px] font-bold transition",
+                        sleepHours === h
+                          ? "border-violet-500 bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                          : "border-zinc-200 hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100",
+                      )}
+                    >
+                      {h}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </Card>
@@ -497,6 +526,125 @@ export default function DailyHub({ trades = [], onNavigate }) {
               </Button>
             </div>
           </Card>
+        </div>
+      </div>
+
+      {/* ───── Biohacking secundário (faixa compacta) ───── */}
+      <div className={cx("border", BORDER)}>
+        <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2 dark:border-zinc-900">
+          <div className="flex items-center gap-2">
+            <Beaker className={cx("h-3.5 w-3.5", TEXT_MUTED)} strokeWidth={1.5} />
+            <span className={LABEL_XS}>Biohacking · secundário</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 divide-x divide-zinc-100 sm:grid-cols-4 dark:divide-zinc-900">
+          {/* Cafeína */}
+          <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <Coffee className="h-3.5 w-3.5 text-amber-600" strokeWidth={1.5} />
+              <span className="font-mono text-[11px] font-semibold tabular-nums text-amber-600">
+                {caffeine}<span className={cx("ml-0.5 text-[9px]", TEXT_MUTED)}>mg</span>
+              </span>
+            </div>
+            <div className="flex gap-1">
+              {[50, 100, 200].map((mg) => (
+                <button
+                  key={mg}
+                  type="button"
+                  onClick={() => setCaffeine((c) => c + mg)}
+                  className="border border-zinc-200 px-1.5 py-0.5 text-[9px] font-bold transition hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100"
+                >
+                  +{mg}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setCaffeine(0)}
+                className="border border-zinc-200 px-1.5 py-0.5 text-zinc-400 transition hover:text-rose-500 dark:border-zinc-800"
+                aria-label="Zerar cafeína"
+              >
+                <Minus className="h-2.5 w-2.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Jejum */}
+          <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+            <div className="flex min-w-0 items-center gap-2">
+              <Timer className="h-3.5 w-3.5 text-sky-600" strokeWidth={1.5} />
+              <span className="font-mono text-[11px] font-semibold tabular-nums text-sky-600">
+                {fasting}<span className={cx("ml-0.5 text-[9px]", TEXT_MUTED)}>h</span>
+              </span>
+            </div>
+            <div className="flex gap-1">
+              {[1, 4, 8].map((h) => (
+                <button
+                  key={h}
+                  type="button"
+                  onClick={() => setFasting((f) => f + h)}
+                  className="border border-zinc-200 px-1.5 py-0.5 text-[9px] font-bold transition hover:border-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-100"
+                >
+                  +{h}h
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setFasting(0)}
+                className="border border-zinc-200 px-1.5 py-0.5 text-zinc-400 transition hover:text-rose-500 dark:border-zinc-800"
+                aria-label="Zerar jejum"
+              >
+                <Minus className="h-2.5 w-2.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Nootrópicos */}
+          <button
+            type="button"
+            onClick={() => setNootropics((v) => !v)}
+            className={cx(
+              "flex items-center justify-between gap-2 px-3 py-2.5 text-left transition",
+              nootropics ? "bg-emerald-500/5" : "hover:bg-zinc-50 dark:hover:bg-zinc-900/40",
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <Zap
+                className={cx("h-3.5 w-3.5", nootropics ? "text-emerald-500" : "text-zinc-400")}
+                strokeWidth={1.5}
+              />
+              <span className={cx(
+                "text-[11px] font-semibold uppercase tracking-wider",
+                nootropics ? "text-emerald-600 dark:text-emerald-400" : TEXT_MUTED,
+              )}>
+                Nootrópico
+              </span>
+            </div>
+            <span className={cx(
+              "flex h-3.5 w-3.5 items-center justify-center border",
+              nootropics ? "border-emerald-500 bg-emerald-500" : "border-zinc-300 dark:border-zinc-700",
+            )}>
+              {nootropics && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+            </span>
+          </button>
+
+          {/* Dieta */}
+          <div className="flex items-center gap-2 px-3 py-2.5">
+            <span className={cx("shrink-0 text-[11px] font-semibold uppercase tracking-wider", TEXT_MUTED)}>
+              Dieta
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={diet}
+              onChange={(e) => setDiet(parseInt(e.target.value))}
+              className="flex-1 accent-zinc-900 dark:accent-zinc-100"
+              aria-label="Qualidade da dieta"
+            />
+            <span className="w-6 text-right font-mono text-[11px] font-semibold tabular-nums text-zinc-500">
+              {diet}<span className="text-[9px]">/10</span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
