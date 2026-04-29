@@ -29,7 +29,7 @@ export default function Topbar({
     new: { title: "Novo Trade", sub: "Registre uma execução com contexto completo" },
     journal: { title: "Diário", sub: "Todo trade, todo contexto" },
     analytics: { title: "Diagnóstico", sub: "Inteligência de performance segmentada" },
-    psychology: { title: "Psicologia", sub: "Rastreamento do edge comportamental" },
+    psychology: { title: "Páginas de Trading", sub: "Diário técnico + psicológico da sessão" },
     papers: { title: "Estudos", sub: "Papers & pesquisas macroeconômicas" },
     calendar: { title: "Calendário", sub: "Heatmap de PnL diário" },
   };

@@ -7,9 +7,10 @@ import TradeTable from "./components/TradeTable";
 import NewTradeForm from "./components/NewTradeForm";
 import PreTradeChecklist from "./components/PreTradeChecklist";
 import TradingCalendar from "./components/TradingCalendar";
-import PsychologyJournal from "./components/PsychologyJournal";
+import TradingPages from "./components/TradingPages";
 import PapersJournal from "./components/PapersJournal";
 import AdvancedInsights from "./components/AdvancedInsights";
+import PerformanceInsights from "./components/PerformanceInsights";
 import { supabase, tradesApi, psychologyApi, papersApi, accountsApi } from "./lib/supabase";
 
 const TRADES_STORAGE_KEY = "tj-trades";
@@ -92,6 +93,7 @@ function psychToSnake(entry) {
     mood: entry.mood,
     emotions: entry.emotions || [],
     error_checklist: entry.errors || [],
+    technical_review: entry.technicalReview || "",
   };
 }
 
@@ -104,6 +106,7 @@ function psychToCamel(row) {
     mood: row.mood,
     emotions: row.emotions || [],
     errors: row.error_checklist || [],
+    technicalReview: row.technical_review || "",
   };
 }
 
@@ -692,7 +695,7 @@ export default function App() {
   // Tab bar config
   const PERSONAL_TABS = [
     { id: "daily",      label: "Meu Dia" },
-    { id: "psychology", label: "Psicologia" },
+    { id: "psychology", label: "Páginas de Trading" },
     { id: "papers",     label: "Estudos" },
   ];
   const TRADING_TABS = [
@@ -784,14 +787,16 @@ export default function App() {
           {/* ── Personal Hub ── */}
           {view === "personal" && personalTab === "daily" && (
             <DailyHub trades={filteredTrades} onNavigate={(id) => {
-              if (["new", "journal", "analytics", "papers"].includes(id)) {
+              if (["new", "journal", "analytics", "papers", "insights"].includes(id)) {
                 if (id === "papers") { setView("personal"); setPersonalTab("papers"); }
+                else if (id === "insights") { setView("insights"); }
                 else { setView("trading"); setTradingTab(id === "new" ? "new" : id); }
               }
             }} />
           )}
+          {view === "insights" && <PerformanceInsights />}
           {view === "personal" && personalTab === "psychology" && (
-            <PsychologyJournal
+            <TradingPages
               entries={psychologyEntries}
               setEntries={setPsychologyEntries}
               syncToSupabase={syncPsychologyToSupabase}

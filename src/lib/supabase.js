@@ -241,3 +241,49 @@ export const accountsApi = {
     return true;
   },
 };
+
+/**
+ * Daily metrics (Biohacking & Performance)
+ */
+export const metricsApi = {
+  async getToday(date) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("daily_metrics")
+      .select("*")
+      .eq("date", date)
+      .maybeSingle();
+    if (error) {
+      console.error("Fetch metrics error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async upsert(metrics) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("daily_metrics")
+      .upsert(metrics, { onConflict: "date" })
+      .select()
+      .single();
+    if (error) {
+      console.error("Upsert metrics error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async getAll() {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("daily_metrics")
+      .select("*")
+      .order("date", { ascending: false });
+    if (error) {
+      console.error("Fetch all metrics error:", error);
+      return null;
+    }
+    return data;
+  },
+};

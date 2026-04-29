@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Brain, CalendarDays, NotebookPen, Sparkles, Sunrise, Moon,
-  Trash2, History, Save, Check,
+  BookOpen, CalendarDays, NotebookPen, Sparkles, Sunrise, Moon,
+  Trash2, History, Save, Check, LineChart, Brain,
 } from "lucide-react";
 import { Card, SectionHeader, Field, TextArea, Button, ToggleChip } from "./ui";
 import {
@@ -10,7 +10,7 @@ import {
 } from "./constants";
 import { MOODS } from "../data/mockTrades";
 
-const PSYCH_MISTAKES = [
+const SESSION_ERRORS = [
   "Entrada por FOMO",
   "Aumentou a mão no loss",
   "Hesitação na entrada",
@@ -42,7 +42,8 @@ const emptyDraft = (date) => ({
   mood: "",
   premarket: "",
   postmarket: "",
-  mistakes: [],
+  technicalReview: "",
+  errors: [],
 });
 
 function MoodPicker({ value, onChange }) {
@@ -62,10 +63,10 @@ function MoodPicker({ value, onChange }) {
   );
 }
 
-function MistakeChecklist({ value, onToggle }) {
+function ErrorChecklist({ value, onToggle }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {PSYCH_MISTAKES.map((m) => {
+      {SESSION_ERRORS.map((m) => {
         const active = value.includes(m);
         return (
           <button
@@ -97,7 +98,7 @@ function TimelineEntry({ entry, isActive, onSelect, onDelete }) {
       ? "border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400"
       : `border-zinc-300 ${TEXT_MUTED} dark:border-zinc-700`;
 
-  const snippet = (entry.postmarket || entry.premarket || "").trim();
+  const snippet = (entry.postmarket || entry.technicalReview || entry.premarket || "").trim();
 
   return (
     <div
@@ -140,9 +141,9 @@ function TimelineEntry({ entry, isActive, onSelect, onDelete }) {
         <p className={cx("line-clamp-2 text-xs leading-relaxed", TEXT_SOFT)}>{snippet}</p>
       )}
 
-      {entry.mistakes?.length > 0 && (
+      {entry.errors?.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {entry.mistakes.slice(0, 3).map((m) => (
+          {entry.errors.slice(0, 3).map((m) => (
             <span
               key={m}
               className={cx(
@@ -153,9 +154,9 @@ function TimelineEntry({ entry, isActive, onSelect, onDelete }) {
               {m}
             </span>
           ))}
-          {entry.mistakes.length > 3 && (
+          {entry.errors.length > 3 && (
             <span className={cx("text-[10px]", TEXT_MUTED)}>
-              +{entry.mistakes.length - 3}
+              +{entry.errors.length - 3}
             </span>
           )}
         </div>
@@ -164,7 +165,7 @@ function TimelineEntry({ entry, isActive, onSelect, onDelete }) {
   );
 }
 
-export default function PsychologyJournal({ entries = [], setEntries, syncToSupabase, syncDeleteFromSupabase }) {
+export default function TradingPages({ entries = [], setEntries, syncToSupabase, syncDeleteFromSupabase }) {
   const [editingDate, setEditingDate] = useState(() => todayKey());
   const [draft, setDraft] = useState(() => emptyDraft(todayKey()));
   const [savedFlash, setSavedFlash] = useState(false);
@@ -176,7 +177,11 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
 
   useEffect(() => {
     const existing = entries.find((e) => e.date === editingDate);
-    setDraft(existing ? { ...existing } : emptyDraft(editingDate));
+    setDraft(
+      existing
+        ? { ...emptyDraft(editingDate), ...existing }
+        : emptyDraft(editingDate),
+    );
   }, [editingDate, entries]);
 
   useEffect(() => {
@@ -189,30 +194,40 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
     const existing = entries.find((e) => e.date === editingDate);
     if (!existing) {
       return Boolean(
-        draft.mood || draft.premarket.trim() || draft.postmarket.trim() || draft.mistakes.length,
+        draft.mood ||
+          draft.premarket.trim() ||
+          draft.postmarket.trim() ||
+          draft.technicalReview.trim() ||
+          draft.errors.length,
       );
     }
     return (
       existing.mood !== draft.mood ||
-      existing.premarket !== draft.premarket ||
-      existing.postmarket !== draft.postmarket ||
-      JSON.stringify(existing.mistakes || []) !== JSON.stringify(draft.mistakes || [])
+      (existing.premarket || "") !== draft.premarket ||
+      (existing.postmarket || "") !== draft.postmarket ||
+      (existing.technicalReview || "") !== draft.technicalReview ||
+      JSON.stringify(existing.errors || []) !== JSON.stringify(draft.errors || [])
     );
   }, [draft, editingDate, entries]);
 
   const updateField = (patch) => setDraft((d) => ({ ...d, ...patch }));
 
-  const toggleMistake = (m) =>
+  const toggleError = (m) =>
     setDraft((d) => ({
       ...d,
-      mistakes: d.mistakes.includes(m)
-        ? d.mistakes.filter((x) => x !== m)
-        : [...d.mistakes, m],
+      errors: d.errors.includes(m)
+        ? d.errors.filter((x) => x !== m)
+        : [...d.errors, m],
     }));
 
   const handleSave = () => {
     if (!isDirty) return;
-    const payload = { ...draft, id: draft.id || `psych-${editingDate}`, date: editingDate, updatedAt: new Date().toISOString() };
+    const payload = {
+      ...draft,
+      id: draft.id || `tp-${editingDate}`,
+      date: editingDate,
+      updatedAt: new Date().toISOString(),
+    };
     setEntries((prev) => {
       const exists = prev.some((e) => e.date === editingDate);
       if (exists) {
@@ -243,8 +258,8 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
       <div className="lg:col-span-3">
         <Card padding="p-6">
           <SectionHeader
-            icon={<Brain className="h-4 w-4" />}
-            title={isEditingToday ? "Registro de Hoje" : "Editando entrada"}
+            icon={<BookOpen className="h-4 w-4" />}
+            title={isEditingToday ? "Página de Hoje" : "Editando página"}
             subtitle={formatLongDate(editingDate)}
             right={
               !isEditingToday && (
@@ -278,7 +293,14 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
               />
             </Field>
 
-            <Field label="Estado emocional" hint="Selecione um humor predominante">
+            <Field
+              label="Estado emocional"
+              hint={
+                <span className="inline-flex items-center gap-1">
+                  <Brain className="h-3 w-3" strokeWidth={1.5} /> humor predominante da sessão
+                </span>
+              }
+            >
               <MoodPicker
                 value={draft.mood}
                 onChange={(mood) => updateField({ mood })}
@@ -302,6 +324,22 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
             </Field>
 
             <Field
+              label="Review Técnico da Sessão"
+              hint={
+                <span className="inline-flex items-center gap-1">
+                  <LineChart className="h-3 w-3" strokeWidth={1.5} /> execução, setups e contexto de mercado
+                </span>
+              }
+            >
+              <TextArea
+                rows={5}
+                placeholder="Quais setups apareceram? Como foi a leitura de fluxo, killzones e contexto macro? O que executou bem tecnicamente?"
+                value={draft.technicalReview}
+                onChange={(e) => updateField({ technicalReview: e.target.value })}
+              />
+            </Field>
+
+            <Field
               label="Review Pós-Mercado"
               hint={
                 <span className="inline-flex items-center gap-1">
@@ -318,17 +356,17 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
             </Field>
 
             <Field
-              label="Erros psicológicos"
+              label="Erros da sessão"
               hint="Marque tudo que aconteceu — honestidade radical"
             >
-              <MistakeChecklist value={draft.mistakes} onToggle={toggleMistake} />
+              <ErrorChecklist value={draft.errors} onToggle={toggleError} />
             </Field>
 
             <div className={cx("flex items-center justify-between border-t pt-4", BORDER_ROW)}>
               <p className={cx("text-[11px]", TEXT_MUTED)}>
                 {savedFlash ? (
                   <span className={cx("inline-flex items-center gap-1.5", TEXT_EMERALD)}>
-                    <Sparkles className="h-3 w-3" strokeWidth={1.5} /> Registro salvo
+                    <Sparkles className="h-3 w-3" strokeWidth={1.5} /> Página salva
                   </span>
                 ) : isDirty ? (
                   "Alterações não salvas"
@@ -356,8 +394,8 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
             title="Histórico"
             subtitle={
               sorted.length
-                ? `${sorted.length} ${sorted.length === 1 ? "registro" : "registros"}`
-                : "Nenhum registro ainda"
+                ? `${sorted.length} ${sorted.length === 1 ? "página" : "páginas"}`
+                : "Nenhuma página ainda"
             }
           />
 
@@ -371,7 +409,7 @@ export default function PsychologyJournal({ entries = [], setEntries, syncToSupa
             >
               <NotebookPen className={cx("h-5 w-5", TEXT_MUTED)} strokeWidth={1.5} />
               <p className={cx("text-xs", TEXT_MUTED)}>
-                Suas anotações aparecerão aqui após o primeiro salvamento.
+                Suas páginas aparecerão aqui após o primeiro salvamento.
               </p>
             </div>
           ) : (

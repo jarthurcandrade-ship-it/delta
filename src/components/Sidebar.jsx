@@ -8,11 +8,13 @@ import {
   Check,
   X,
   PlusCircle,
+  Activity,
 } from "lucide-react";
 
 const ITEMS = [
   { id: "personal", label: "Pessoal", icon: Home },
   { id: "trading",  label: "Trading", icon: LayoutDashboard },
+  { id: "insights", label: "Insights", icon: Activity },
 ];
 
 export default function Sidebar({ 

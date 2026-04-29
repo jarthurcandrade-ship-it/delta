@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS psychology_entries (
   mood TEXT,
   emotions JSONB DEFAULT '[]',
   error_checklist JSONB DEFAULT '[]',
+  technical_review TEXT, -- Novo campo para review técnico
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -137,3 +138,34 @@ CREATE POLICY "Allow all access to accounts" ON accounts
 DROP POLICY IF EXISTS "Allow all access to papers" ON papers;
 CREATE POLICY "Allow all access to papers" ON papers
   FOR ALL USING (true) WITH CHECK (true);
+
+-- 6. Tabela de métricas diárias (Biohacking & Performance)
+CREATE TABLE IF NOT EXISTS daily_metrics (
+  date DATE PRIMARY KEY,
+  sleep_score INTEGER DEFAULT 0,
+  emotional_score INTEGER DEFAULT 0,
+  focus_score INTEGER DEFAULT 0,
+  clarity_score INTEGER DEFAULT 0,
+  body_score INTEGER DEFAULT 0,
+  confidence_score INTEGER DEFAULT 0,
+  impact_score INTEGER DEFAULT 0,
+  caffeine_mg INTEGER DEFAULT 0, -- mg de cafeína
+  nootropics BOOLEAN DEFAULT false,
+  fasting_hours INTEGER DEFAULT 0,
+  diet_quality INTEGER DEFAULT 0, -- 1-10
+  meditation_minutes INTEGER DEFAULT 0,
+  habits_json JSONB DEFAULT '{}', -- Sincroniza os hábitos do Daily Hub
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE daily_metrics ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all access to daily_metrics" ON daily_metrics;
+CREATE POLICY "Allow all access to daily_metrics" ON daily_metrics
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TRIGGER daily_metrics_touch_updated_at
+  BEFORE UPDATE ON daily_metrics
+  FOR EACH ROW
+  EXECUTE FUNCTION touch_updated_at();
