@@ -165,7 +165,7 @@ function TimelineEntry({ entry, isActive, onSelect, onDelete }) {
   );
 }
 
-export default function TradingPages({ entries = [], setEntries, syncToSupabase, syncDeleteFromSupabase }) {
+export default function PsychologyJournal({ entries = [], setEntries, syncToSupabase, syncDeleteFromSupabase }) {
   const [editingDate, setEditingDate] = useState(() => todayKey());
   const [draft, setDraft] = useState(() => emptyDraft(todayKey()));
   const [savedFlash, setSavedFlash] = useState(false);

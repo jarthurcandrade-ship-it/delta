@@ -7,7 +7,7 @@ import TradeTable from "./components/TradeTable";
 import NewTradeForm from "./components/NewTradeForm";
 import PreTradeChecklist from "./components/PreTradeChecklist";
 import TradingCalendar from "./components/TradingCalendar";
-import TradingPages from "./components/TradingPages";
+import PsychologyJournal from "./components/PsychologyJournal";
 import PapersJournal from "./components/PapersJournal";
 import AdvancedInsights from "./components/AdvancedInsights";
 import PerformanceInsights from "./components/PerformanceInsights";
@@ -695,12 +695,12 @@ export default function App() {
   // Tab bar config
   const PERSONAL_TABS = [
     { id: "daily",      label: "Meu Dia" },
-    { id: "psychology", label: "Páginas de Trading" },
     { id: "papers",     label: "Estudos" },
   ];
   const TRADING_TABS = [
     { id: "dashboard",  label: "Painel" },
     { id: "journal",    label: "Diário" },
+    { id: "psychology", label: "Psicologia" },
     { id: "analytics",  label: "Diagnóstico" },
     { id: "calendar",   label: "Calendário" },
   ];
@@ -795,8 +795,8 @@ export default function App() {
             }} />
           )}
           {view === "insights" && <PerformanceInsights />}
-          {view === "personal" && personalTab === "psychology" && (
-            <TradingPages
+          {view === "trading" && tradingTab === "psychology" && (
+            <PsychologyJournal
               entries={psychologyEntries}
               setEntries={setPsychologyEntries}
               syncToSupabase={syncPsychologyToSupabase}
