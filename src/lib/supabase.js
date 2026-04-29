@@ -243,6 +243,111 @@ export const accountsApi = {
 };
 
 /**
+ * Banco de ideias — captura rápida de ideias com tags
+ */
+export const ideasApi = {
+  async getAll() {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("ideas")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Fetch ideas error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async insert(idea) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("ideas")
+      .insert(idea)
+      .select()
+      .single();
+    if (error) {
+      console.error("Insert idea error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async update(id, patch) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("ideas")
+      .update(patch)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      console.error("Update idea error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async remove(id) {
+    if (!supabase) return false;
+    const { error } = await supabase.from("ideas").delete().eq("id", id);
+    if (error) {
+      console.error("Delete idea error:", error);
+      return false;
+    }
+    return true;
+  },
+};
+
+/**
+ * Reflexões semanais — uma linha por semana ISO (week_start = segunda)
+ */
+export const reflectionsApi = {
+  async getRange(fromDate, toDate) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("weekly_reflections")
+      .select("*")
+      .gte("week_start", fromDate)
+      .lte("week_start", toDate)
+      .order("week_start", { ascending: false });
+    if (error) {
+      console.error("Fetch reflections error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async getOne(weekStart) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("weekly_reflections")
+      .select("*")
+      .eq("week_start", weekStart)
+      .maybeSingle();
+    if (error) {
+      console.error("Fetch reflection error:", error);
+      return null;
+    }
+    return data;
+  },
+
+  async upsert(reflection) {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("weekly_reflections")
+      .upsert(reflection, { onConflict: "week_start" })
+      .select()
+      .single();
+    if (error) {
+      console.error("Upsert reflection error:", error);
+      return null;
+    }
+    return data;
+  },
+};
+
+/**
  * Daily metrics (Biohacking & Performance)
  */
 export const metricsApi = {

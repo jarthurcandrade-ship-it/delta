@@ -8,6 +8,7 @@ import {
   Sparkles, Target, TrendingDown, TrendingUp, Zap, Brain, Layers, Compass
 } from "lucide-react";
 import { Card, SectionHeader, formatUsd, signedUsd, pnlClass } from "./ui";
+import BioPerformanceCorrelations from "./BioPerformanceCorrelations";
 import {
   cx, BORDER, BORDER_INPUT, SURFACE, SURFACE_MUTED, TRACK,
   TEXT_TITLE, TEXT_BODY, TEXT_SOFT, TEXT_MUTED, TEXT_EMERALD, TEXT_ROSE,
@@ -1158,6 +1159,7 @@ export default function AdvancedInsights({ trades = [] }) {
         </Card>
       </div>
 
+      <BioPerformanceCorrelations trades={trades} />
     </div>
   );
 }

@@ -171,3 +171,40 @@ CREATE TRIGGER daily_metrics_touch_updated_at
   BEFORE UPDATE ON daily_metrics
   FOR EACH ROW
   EXECUTE FUNCTION touch_updated_at();
+
+-- 6. Banco de ideias (Insights pessoais)
+CREATE TABLE IF NOT EXISTS ideas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  text TEXT NOT NULL,
+  tags TEXT[] DEFAULT '{}',
+  done BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ideas_created_at ON ideas(created_at DESC);
+
+ALTER TABLE ideas ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all access to ideas" ON ideas;
+CREATE POLICY "Allow all access to ideas" ON ideas
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- 7. Reflexões semanais (Insights pessoais)
+CREATE TABLE IF NOT EXISTS weekly_reflections (
+  week_start DATE PRIMARY KEY, -- segunda-feira da semana ISO
+  energized TEXT,
+  drained TEXT,
+  win TEXT,
+  next_focus TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE weekly_reflections ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all access to weekly_reflections" ON weekly_reflections;
+CREATE POLICY "Allow all access to weekly_reflections" ON weekly_reflections
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TRIGGER weekly_reflections_touch_updated_at
+  BEFORE UPDATE ON weekly_reflections
+  FOR EACH ROW
+  EXECUTE FUNCTION touch_updated_at();
