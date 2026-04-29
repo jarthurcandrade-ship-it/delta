@@ -26,7 +26,19 @@ html.dark {
 body { margin: 0; }
 #root { width: 100%; }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+/* Scrollbar — thinner and subtler */
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 0; }
+::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 0; }
 html.dark ::-webkit-scrollbar-thumb { background: #27272a; }
+
+/* Smooth transitions for theme changes */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 120ms;
+  transition-timing-function: ease;
+}
+/* But not layout properties */
+button, a, input, textarea, select {
+  transition-property: background-color, border-color, color, opacity, transform, box-shadow;
+}

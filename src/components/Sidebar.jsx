@@ -73,8 +73,8 @@ export default function Sidebar({
   return (
     <aside className="hidden md:flex w-[220px] shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
       <div className="flex items-center gap-3 border-b border-zinc-200 px-5 py-5 dark:border-zinc-800">
-        <span className="flex h-8 w-8 items-center justify-center border border-black text-[11px] font-bold tracking-widest text-black dark:border-white dark:text-white">
-          DE
+        <span className="flex h-8 w-8 items-center justify-center border border-black text-base font-bold text-black dark:border-white dark:text-white">
+          Δ
         </span>
         <div className="leading-tight">
           <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-zinc-500">

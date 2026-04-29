@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   Moon, HeartPulse, Brain, Crosshair, Activity, Sparkles, Compass,
   ShieldCheck, ShieldAlert, ShieldX, Award, Check,
@@ -125,6 +125,66 @@ function saveToday(data) {
   } catch {}
 }
 
+// ── ScoreRing (SVG animated) ─────────────────────────────────────
+function ScoreRing({ score, max = 100, size = 80, colorClass }) {
+  const [animated, setAnimated] = useState(false);
+  const r = size / 2 - 6;
+  const circ = 2 * Math.PI * r;
+  const pct = Math.min(score / max, 1);
+  const offset = circ * (1 - (animated ? pct : 0));
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 150);
+    return () => clearTimeout(t);
+  }, [score]);
+
+  const strokeColor =
+    colorClass === "positive" ? "#10b981"
+    : colorClass === "neutral" ? "#f59e0b"
+    : "#f43f5e";
+
+  return (
+    <svg
+      width={size} height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      style={{ display: "block", flexShrink: 0 }}
+    >
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke="currentColor" strokeOpacity={0.1} strokeWidth={5}
+      />
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={5}
+        strokeLinecap="square"
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: "stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)" }}
+      />
+      <text
+        x={size / 2} y={size / 2 - 3}
+        textAnchor="middle" dominantBaseline="middle"
+        fontSize={size * 0.24} fontWeight={700}
+        fill="currentColor"
+        fontFamily="Inter, system-ui, sans-serif"
+      >
+        {Math.round(score)}
+      </text>
+      <text
+        x={size / 2} y={size / 2 + size * 0.2}
+        textAnchor="middle"
+        fontSize={size * 0.11} fill="currentColor" opacity={0.4}
+        fontFamily="Inter, system-ui, sans-serif" letterSpacing="0.08em"
+      >
+        /100
+      </text>
+    </svg>
+  );
+}
+
 // ── Main component ──────────────────────────────────────────────
 export default function DailyHub({ trades = [], onNavigate }) {
   const consecutiveDays = 8; // mock
@@ -220,24 +280,18 @@ export default function DailyHub({ trades = [], onNavigate }) {
       {/* ───── Verdict card ───── */}
       {filled && (
         <div className={cx("border p-4", vc.container)}>
-          <div className="flex items-center gap-3">
-            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center border", vc.icon)}>
-              <VIcon className="h-5 w-5" strokeWidth={1.5} />
-            </span>
-            <div className="flex-1">
+          <div className="flex items-center gap-4">
+            <ScoreRing score={totalScore} colorClass={tone} size={80} />
+            <div className="flex-1 min-w-0">
               <p className={cx("text-sm font-bold uppercase tracking-wide", vc.title)}>{verdict.title}</p>
-              <p className={cx("text-xs", TEXT_MUTED)}>{verdict.message}</p>
+              <p className={cx("mt-1 text-xs", TEXT_MUTED)}>{verdict.message}</p>
+              <div className="mt-3 h-[2px] w-full overflow-hidden bg-zinc-200 dark:bg-zinc-800">
+                <div
+                  className={`h-full transition-all duration-1000 ease-out ${tone === "positive" ? "bg-emerald-500" : tone === "neutral" ? "bg-amber-500" : "bg-rose-500"}`}
+                  style={{ width: `${totalScore}%` }}
+                />
+              </div>
             </div>
-            <div className="text-right">
-              <p className={cx("font-mono text-3xl font-bold tabular-nums leading-none", vc.score)}>{totalScore}</p>
-              <p className={cx("text-[10px]", TEXT_MUTED)}>/100</p>
-            </div>
-          </div>
-          <div className="mt-3 flex h-[3px] w-full overflow-hidden bg-zinc-200 dark:bg-zinc-800">
-            <div
-              className={`h-full ${tone === "positive" ? "bg-emerald-500" : tone === "neutral" ? "bg-amber-500" : "bg-rose-500"}`}
-              style={{ width: `${totalScore}%` }}
-            />
           </div>
         </div>
       )}

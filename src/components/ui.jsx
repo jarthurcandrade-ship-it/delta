@@ -32,7 +32,7 @@ export function Tag({ children, icon, size = "sm", active = false, onClick, tone
 export function Card({ children, className = "", padding = "p-5" }) {
   return (
     <div
-      className={`relative border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 ${padding} ${className}`}
+      className={`relative border border-zinc-200 bg-white transition-colors dark:border-zinc-800 dark:bg-zinc-950 ${padding} ${className}`}
     >
       {children}
     </div>
@@ -110,19 +110,19 @@ export function Divider({ label }) {
 export function Button({ children, variant = "primary", icon, className = "", ...rest }) {
   const variants = {
     primary:
-      "bg-zinc-900 text-white border border-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100 dark:hover:bg-white",
+      "bg-zinc-900 text-white border border-zinc-900 hover:bg-zinc-800 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100 dark:hover:bg-white",
     secondary:
-      "bg-transparent text-zinc-700 border border-zinc-300 hover:border-zinc-900 hover:text-zinc-900 dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-100 dark:hover:text-zinc-100",
+      "bg-transparent text-zinc-700 border border-zinc-300 hover:border-zinc-900 hover:text-zinc-900 active:scale-[0.98] dark:text-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-100 dark:hover:text-zinc-100",
     ghost: "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100",
     success:
-      "bg-emerald-500 text-white border border-emerald-500 hover:bg-emerald-600 hover:border-emerald-600",
+      "bg-emerald-500 text-white border border-emerald-500 hover:bg-emerald-600 hover:border-emerald-600 active:scale-[0.98]",
     danger:
       "bg-transparent text-rose-600 border border-rose-500/40 hover:bg-rose-500/10 dark:text-rose-400",
   };
   return (
     <button
       {...rest}
-      className={`inline-flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-150 ${variants[variant]} ${className}`}
     >
       {icon && cloneElement(icon, { strokeWidth: 1.5 })}
       {children}
